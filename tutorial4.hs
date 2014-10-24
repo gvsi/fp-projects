@@ -68,8 +68,7 @@ emailsByNameFromURL url name =
 
 -- 1.
 sameString :: String -> String -> Bool
-sameString xs ys = map toLower xs == map toLower ys
-
+sameString xs ys = map toUpper xs == map toUpper ys
 
 -- 2.
 prefix :: String -> String -> Bool
@@ -80,7 +79,6 @@ prop_prefix str n  =  prefix substr (map toLower str) &&
 		      prefix substr (map toUpper str)
                           where
                             substr  =  take n str
-
 
 -- 3.
 contains :: String -> String -> Bool
@@ -103,7 +101,6 @@ takeUntil stopper str | not (contains str stopper) = str
 dropUntil :: String -> String -> String
 dropUntil stopper str | prefix stopper str = drop (length stopper) str
                       | not (contains str stopper) = str
-                      | otherwise = dropUntil stopper (tail str)
 
 -- 5.
 split :: String -> String -> [String]
@@ -111,7 +108,7 @@ split splitter str | contains str splitter = [takeUntil splitter str] ++ (split 
                    | otherwise = [str]
 
 reconstruct :: String -> [String] -> String
-reconstruct splitter xs = concat [if last xs == x then x else x ++ splitter | x <- xs]
+reconstruct sep xs = concat [if last xs == x then x else x ++ sep | x <- xs]
 
 prop_split :: Char -> String -> String -> Bool
 prop_split c sep str = reconstruct sep' (split sep' str) `sameString` str
@@ -133,6 +130,7 @@ takeEmails links = [x | x <- links, prefix "mailto:" x]
 -- 8.
 link2pair :: Link -> (Name, Email)
 link2pair link | prefix "mailto:" link = (takeUntil "</a>" (dropUntil "\">" link), takeUntil "\">" (dropUntil "mailto:" link))
+               | otherwise = error "Not email"
 
 
 -- 9.
