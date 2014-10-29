@@ -35,15 +35,23 @@ instance Show Fruit where
 
 -- 1.
 isBloodOrange :: Fruit -> Bool
-isBloodOrange = undefined
+isBloodOrange (Orange(variety, segments)) = variety == "Tarocco" || variety == "Moro" || variety == "Sanguinello"
+isBloodOrange (Apple(variety, segments)) = False
 
 -- 2.
 bloodOrangeSegments :: [Fruit] -> Int
-bloodOrangeSegments = undefined
-
+bloodOrangeSegments xs = sum (map getSegments (filter (isBloodOrange) xs))
+  where
+    getSegments (Apple(x,y)) = 0
+    getSegments (Orange(x,y)) = y
+ 
 -- 3.
 worms :: [Fruit] -> Int
-worms = undefined
+worms xs = sum (map getWorms xs)
+  where
+    getWorms (Apple(x,y)) | y = 1
+                          | otherwise = 0
+    getWorms (Orange(x,y)) = 0
 
 -- Implementing propositional logic in Haskell
 -- The datatype 'Prop'
@@ -55,6 +63,8 @@ data Prop = Var Name
           | Not Prop
           | Prop :|: Prop
           | Prop :&: Prop
+          | Prop :->: Prop
+          | Prop :<->: Prop
           deriving (Eq, Ord)
 
 type Names = [Name]
@@ -71,6 +81,8 @@ showProp (T)            =  "T"
 showProp (Not p)        =  "(~" ++ showProp p ++ ")"
 showProp (p :|: q)      =  "(" ++ showProp p ++ "|" ++ showProp q ++ ")"
 showProp (p :&: q)      =  "(" ++ showProp p ++ "&" ++ showProp q ++ ")"
+showProp (p :->: q)      =  "(" ++ showProp p ++ "->" ++ showProp q ++ ")"
+showProp (p :<->: q)      =  "(" ++ showProp p ++ "<->" ++ showProp q ++ ")"
 
 -- evaluates a proposition in a given environment
 eval :: Env -> Prop -> Bool
@@ -80,6 +92,8 @@ eval e (T)            =  True
 eval e (Not p)        =  not (eval e p)
 eval e (p :|: q)      =  eval e p || eval e q
 eval e (p :&: q)      =  eval e p && eval e q
+eval e (p :->: q)     =  eval e (Not p) || eval e q
+eval e (p :<->: q)    =  eval e (p :->: q) && eval e (q :->: p) 
 
 -- retrieves the names of variables from a proposition - 
 --  NOTE: variable names in the result must be unique
@@ -90,6 +104,8 @@ names (T)            =  []
 names (Not p)        =  names p
 names (p :|: q)      =  nub (names p ++ names q)
 names (p :&: q)      =  nub (names p ++ names q)
+names (p :->: q)     =  nub (names p ++ names q)
+names (p :<->: q)    =  nub (names p ++ names q)
 
 -- creates all possible truth assignments for a set of variables
 envs :: Names -> [Env]
@@ -105,42 +121,53 @@ satisfiable p  =  or [ eval e p | e <- envs (names p) ]
 -- Exercises ------------------------------------------------------------
 
 -- 4.
-p1 = undefined
-p2 = undefined 
-p3 = undefined
+-- (P & (Q ∨ R)) & (((¬P) ∨ (¬Q)) & ((¬P) ∨ (¬R)))
+p1 = (Var "P" :|: Var "Q") :&: (Var "P" :&: Var "Q")
+p2 = (Var "P" :|: Var "Q") :&: (Not (Var "P") :&: Not (Var "Q"))
+p3 = (Var "P" :&: (Var "Q" :|: Var "R")) :&: ((Not (Var "P") :|: Not (Var "Q")) :&: (Not (Var "P") :|: Not (Var "R")))
 
 
 -- 5. 
 tautology :: Prop -> Bool
-tautology = undefined
+tautology p = and [ eval e p | e <- envs (names p) ]
 
 prop_taut1 :: Prop -> Bool
-prop_taut1 = undefined
+prop_taut1 p = tautology p || satisfiable (Not p)
 
 prop_taut2 :: Prop -> Bool
-prop_taut2 = undefined
+prop_taut2 p = not (satisfiable p) || not (tautology (Not p))
 
 
 -- 6.
-p4 = undefined
-p5 = undefined
-p6 = undefined 
+--((P →Q)&(P ↔Q))
+p4 = (Var "P" :->: Var "Q") :&: (Var "P" :<->: Var "Q")
+p5 = (Var "P" :->: Var "Q") :&: (Var "P" :&: Not (Var "Q"))
+p6 = (Var "P" :->: Var "Q") :&: ((Var "P" :&: Not (Var "Q")) :|: (Not (Var "P") :&: Var "Q")) 
 
 
 -- 7.
 equivalent :: Prop -> Prop -> Bool
-equivalent = undefined
+equivalent p q = and [ eval e p == eval e q | e <- envs ( nub ( names p ++ names q ) ) ]
 
 equivalent' :: Prop -> Prop -> Bool
-equivalent' = undefined
+equivalent' p q = tautology (p :<->: q)
 
 prop_equivalent :: Prop -> Prop -> Bool
-prop_equivalent = undefined
+prop_equivalent p q = equivalent p q == equivalent' p q
 
 
 -- 8.
 subformulas :: Prop -> [Prop]
-subformulas = undefined
+subformulas p = nub (subformulasHelper p)
+
+subformulasHelper :: Prop -> [Prop]
+subformulasHelper (Not p)      = (Not p) : sfHelp p
+subformulasHelper (p :|: q)    = (p :|: q) : (sfHelp p ++ sfHelp q)
+subformulasHelper (p :&: q)    = (p :&: q) : (sfHelp p ++ sfHelp q)
+subformulasHelper (p :->: q)   = (p :->: q) : (sfHelp p ++ sfHelp q)
+subformulasHelper (p :<->: q)  = (p :<->: q) : (sfHelp p ++ sfHelp q)
+subformulasHelper (p)          = [p]
+
 
 
 -- Optional Material
@@ -213,8 +240,8 @@ instance Arbitrary Prop where
                                        , liftM Not subform
                                        , liftM2 (:|:) subform subform
                                        , liftM2 (:&:) subform subform
-                                     --  , liftM2 (:->:) subform subform
-                                     --  , liftM2 (:<->:) subform' subform'
+                                       , liftM2 (:->:) subform subform
+                                       , liftM2 (:<->:) subform' subform'
                                        ]
                  where
                    atom = oneof [liftM Var (elements ["P", "Q", "R", "S"]),
