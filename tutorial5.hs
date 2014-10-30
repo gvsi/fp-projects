@@ -36,14 +36,15 @@ instance Show Fruit where
 -- 1.
 isBloodOrange :: Fruit -> Bool
 isBloodOrange (Orange(variety, segments)) = variety == "Tarocco" || variety == "Moro" || variety == "Sanguinello"
-isBloodOrange (Apple(variety, segments)) = False
+isBloodOrange _ = False
+--isBloodOrange (Apple(variety, segments)) = False
 
 -- 2.
 bloodOrangeSegments :: [Fruit] -> Int
-bloodOrangeSegments xs = sum (map getSegments (filter (isBloodOrange) xs))
+bloodOrangeSegments xs = sum (map getSegments (filter isBloodOrange xs))
   where
-    getSegments (Apple(x,y)) = 0
     getSegments (Orange(x,y)) = y
+    getSegments _ = 0
  
 -- 3.
 worms :: [Fruit] -> Int
@@ -51,7 +52,7 @@ worms xs = sum (map getWorms xs)
   where
     getWorms (Apple(x,y)) | y = 1
                           | otherwise = 0
-    getWorms (Orange(x,y)) = 0
+    getWorms _ = 0
 
 -- Implementing propositional logic in Haskell
 -- The datatype 'Prop'
