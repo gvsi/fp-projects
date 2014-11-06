@@ -8,7 +8,7 @@ import System.Random
 
 -- Importing the keymap module
 
-import KeymapList
+import KeymapTree
 
 
 -- Type declarations
@@ -36,28 +36,30 @@ testDB = fromList [
 -- Exercise 1
 
 longestProductLen :: [(Barcode, Item)] -> Int
-longestProductLen = undefined
+longestProductLen xs = maximum [length product | (barcode, (product, unit)) <- xs] 
 
 formatLine :: Int -> (Barcode, Item) -> String
-formatLine = undefined
+formatLine limit (barcode, (product, unit)) = barcode ++ "..." ++ product ++ (replicate (3 + limit - (length product)) '.') ++ unit
 
 showCatalogue :: Catalogue -> String
-showCatalogue = undefined
+showCatalogue xs = unlines (map (formatLine (longestProductLen (toList xs))) (toList xs))
      
 -- Exercise 2
 maybeToList :: Maybe a -> [a]
-maybeToList = undefined
+maybeToList Nothing = []
+maybeToList (Just xs) = [xs]  
 
 listToMaybe :: [a] -> Maybe a
-listToMaybe = undefined
+listToMaybe [] = Nothing
+listToMaybe xs = Just (head xs)
 
 catMaybes :: [Maybe a] -> [a]
-catMaybes = undefined
+catMaybes xs = concat (map maybeToList xs)
 
 -- Exercise 3
 
 getItems :: [Barcode] -> Catalogue -> [Item]
-getItems = undefined
+getItems bcs cat = catMaybes (map (\bc -> get bc cat) bcs)
 
 
 
