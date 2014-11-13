@@ -115,9 +115,8 @@ envs (x:xs)  =  [ (x,False):e | e <- envs xs ] ++
                 [ (x,True ):e | e <- envs xs ]
 
 -- checks whether a proposition is satisfiable
-satisfiable :: Prop -> Bool
-satisfiable p  =  or [ eval e p | e <- envs (names p) ]
-
+satisfiable :: Prop -> [Bool]
+satisfiable p  =  [ eval e p | e <- envs (names p), eval e p ]
 
 -- Exercises ------------------------------------------------------------
 
@@ -132,11 +131,11 @@ p3 = (Var "P" :&: (Var "Q" :|: Var "R")) :&: ((Not (Var "P") :|: Not (Var "Q")) 
 tautology :: Prop -> Bool
 tautology p = and [ eval e p | e <- envs (names p) ]
 
-prop_taut1 :: Prop -> Bool
-prop_taut1 p = tautology p || satisfiable (Not p)
+--prop_taut1 :: Prop -> Bool
+--prop_taut1 p = tautology p || satisfiable (Not p)
 
-prop_taut2 :: Prop -> Bool
-prop_taut2 p = not (satisfiable p) || not (tautology (Not p))
+--prop_taut2 :: Prop -> Bool
+--prop_taut2 p = not (satisfiable p) || not (tautology (Not p))
 
 
 -- 6.
@@ -162,14 +161,12 @@ subformulas :: Prop -> [Prop]
 subformulas p = nub (subformulasHelper p)
 
 subformulasHelper :: Prop -> [Prop]
-subformulasHelper (Not p)      = (Not p) : sfHelp p
-subformulasHelper (p :|: q)    = (p :|: q) : (sfHelp p ++ sfHelp q)
-subformulasHelper (p :&: q)    = (p :&: q) : (sfHelp p ++ sfHelp q)
-subformulasHelper (p :->: q)   = (p :->: q) : (sfHelp p ++ sfHelp q)
-subformulasHelper (p :<->: q)  = (p :<->: q) : (sfHelp p ++ sfHelp q)
+subformulasHelper (Not p)      = (Not p) : subformulasHelper p
+subformulasHelper (p :|: q)    = (p :|: q) : (subformulasHelper p ++ subformulasHelper q)
+subformulasHelper (p :&: q)    = (p :&: q) : (subformulasHelper p ++ subformulasHelper q)
+subformulasHelper (p :->: q)   = (p :->: q) : (subformulasHelper p ++ subformulasHelper q)
+subformulasHelper (p :<->: q)  = (p :<->: q) : (subformulasHelper p ++ subformulasHelper q)
 subformulasHelper (p)          = [p]
-
-
 
 -- Optional Material
 

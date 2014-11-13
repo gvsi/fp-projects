@@ -43,7 +43,7 @@ formatLine limit (barcode, (product, unit)) = barcode ++ "..." ++ product ++ (re
 
 showCatalogue :: Catalogue -> String
 showCatalogue xs = unlines (map (formatLine (longestProductLen (toList xs))) (toList xs))
-     
+
 -- Exercise 2
 maybeToList :: Maybe a -> [a]
 maybeToList Nothing = []
@@ -60,10 +60,6 @@ catMaybes xs = concat (map maybeToList xs)
 
 getItems :: [Barcode] -> Catalogue -> [Item]
 getItems bcs cat = catMaybes (map (\bc -> get bc cat) bcs)
-
-
-
-
 
 
 -- Input-output ------------------------------------------
