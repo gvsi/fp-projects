@@ -44,7 +44,7 @@ depth (Node _ _ left right) = 1 + max (depth left) (depth right)
 
 toList :: Ord k => Keymap k a -> [(k,a)]
 toList Leaf = []
-toList (Node key value left right) = (toList left) ++ [(key,value)] ++ (toList right) 
+toList (Node key value left right) = toList left ++ [(key,value)] ++ toList right 
 
 -- Exercise 8
 
