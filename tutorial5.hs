@@ -117,9 +117,12 @@ envs (x:xs)  =  [ (x,False):e | e <- envs xs ] ++
 -- checks whether a proposition is satisfiable
 satisfiable :: Prop -> [Bool]
 satisfiable p  =  [ eval e p | e <- envs (names p), eval e p ]
+<<<<<<< HEAD
 
 cl :: Prop -> [Bool]
 cl p  =  [ eval e p | e <- envs ["A","B","C","D","E","F","G","H"], eval e p ]
+=======
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
 trues :: [Bool] -> Int
 trues p = length [x | x <- p, x]

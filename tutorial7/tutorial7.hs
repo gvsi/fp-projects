@@ -11,6 +11,7 @@ import Test.QuickCheck
 
 -- 1a. split
 split :: Command -> [Command]
+<<<<<<< HEAD
 split (x :#: y) = split x ++ split y
 split Sit = []
 split x = [x] 
@@ -33,11 +34,27 @@ prop_split x = all accepted $ split x
     accepted Sit     = False
     accepted (_:#:_) = False
     accepted _       = True
+=======
+split = undefined
+
+-- 1b. join
+join :: [Command] -> Command
+join = undefined
+
+-- 1c  equivalent
+equivalent = undefined
+
+-- 1d. testing join and split
+prop_split_join = undefined
+
+prop_split = undefined
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
 
 -- Exercise 2
 -- 2a. copy
 copy :: Int -> Command -> Command
+<<<<<<< HEAD
 copy n x = join $ replicate n x
 
 -- 2b. pentagon
@@ -47,18 +64,36 @@ pentagon l = copy 5 (Go l :#: Turn 72.0)
 -- 2c. polygon
 polygon :: Distance -> Int -> Command
 polygon l n = copy n (Go l :#: Turn (360.0 / fromIntegral n))
+=======
+copy = undefined
+
+-- 2b. pentagon
+pentagon :: Distance -> Command
+pentagon = undefined
+
+-- 2c. polygon
+polygon :: Distance -> Int -> Command
+polygon = undefined
+
+
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
 -- Exercise 3
 -- spiral
 spiral :: Distance -> Int -> Distance -> Angle -> Command
+<<<<<<< HEAD
 spiral _ 0 _ _ = Sit
 spiral l n s a = (Go l :#: Turn a) :#: spiral (l+s) (n-1) s a
 
+=======
+spiral = undefined
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
 
 -- Exercise 4
 -- optimise
 optimise :: Command -> Command
+<<<<<<< HEAD
 optimise x = join ( help ( split x ) )
   where
     help []                      = []
@@ -67,11 +102,17 @@ optimise x = join ( help ( split x ) )
     help (Turn x : Turn y : xs)  = help $ Turn (x + y) : help xs
     help (Turn 0 : xs)           = help xs
     help (x:xs)                  = x : help xs
+=======
+optimise = undefined
+
+
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
 -- L-Systems
 
 -- 5. arrowhead
 arrowhead :: Int -> Command
+<<<<<<< HEAD
 arrowhead x = f x
     where
       f 0 = Go 10
@@ -100,4 +141,15 @@ hilbert x = l x
       f = GrabPen black :#: Go 10
       n = Turn 90
       p = Turn(-90)
+=======
+arrowhead = undefined
+
+-- 6. snowflake
+snowflake :: Int -> Command
+snowflake = undefined
+
+-- 7. hilbert
+hilbert :: Int -> Command
+hilbert = undefined
+>>>>>>> 934168e26861578de317f885878da0346190dfd6
 
