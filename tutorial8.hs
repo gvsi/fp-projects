@@ -13,7 +13,6 @@ type Alphabet = [Char]
 type Transition q = (q, Char, q)
 
 
-
 -- Example machines
 
 m1 :: FSM Int
@@ -62,17 +61,16 @@ start  :: FSM q -> q
 final  :: FSM q -> [q]
 trans  :: FSM q -> [Transition q]
 
-
 states (u,a,s,f,t) = u
 alph (u,a,s,f,t) = a
 start (u,a,s,f,t) = s
 final (u,a,s,f,t) = f
 trans (u,a,s,f,t) = t
 
-
 -- 2.
 delta :: (Eq q) => FSM q -> q -> Char -> [q]
 delta m source_state symbol = [ q' | (q, s, q')<-(trans m), q == source_state && s == symbol]
+
 
 -- 3.
 accepts :: (Eq q) => FSM q -> String -> Bool
@@ -115,8 +113,6 @@ dtrans m qss = [ (qs, s, ddelta m qs s) | s <- alph m, qs <- qss ]
 
 -- 10.
 deterministic :: (Ord q) => FSM q -> FSM [q]
-deterministic m = (states, alph m, [start m], dfinal m states, dtrans m (reachable m states))
+deterministic m = (states, alph m, [start m], dfinal m states, dtrans m states)
   where
     states = reachable m [[start m]]
-
-
